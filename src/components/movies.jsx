@@ -5,6 +5,7 @@ import Pagination from './common/pagination';
 import { paginate } from '../utils/paginate';
 import { getMovies } from '../services/fakeMovieService.js';
 import { getGenres } from '../services/fakeGenreService.js';
+import _ from 'lodash';
 
 class Movies extends Component {
   state = {
@@ -12,13 +13,14 @@ class Movies extends Component {
     genres: [],
     currentPage: 1,
     //movies per page
-    pageSize: 4
+    pageSize: 4,
+    sortColumn: { path: 'title', order: 'asc' }
   };
 
   //method is called when instance of this component is rendered in the DOM
   componentDidMount() {
-    //added All Genres object for our filter by appending it to the existing genres array
-    const genres = [{ name: 'All Genres' }, ...getGenres()];
+    //added All Genres object for our filter by appending it to the existing genres array (we also had to add an empty string to give All Genres an id to fix the key error)
+    const genres = [{ _id: '', name: 'All Genres' }, ...getGenres()];
     this.setState({ movies: getMovies(), genres: genres });
   }
 
@@ -52,6 +54,18 @@ class Movies extends Component {
     this.setState({ selectedGenre: genre, currentPage: 1 });
   };
 
+  handleSort = (path) => {
+    //sort logic including clicking again to make the column descending
+    const sortColumn = { ...this.state.sortColumn };
+    if (sortColumn.path === path)
+      sortColumn.order = sortColumn.order === 'asc' ? 'desc' : 'asc';
+    else {
+      sortColumn.path = path;
+      sortColumn.order = 'asc';
+    }
+    this.setState({ sortColumn });
+  };
+
   render() {
     //refactoring and renaming length to movie count
     const { length: count } = this.state.movies;
@@ -61,7 +75,8 @@ class Movies extends Component {
       pageSize,
       currentPage,
       selectedGenre,
-      movies: allMovies
+      movies: allMovies,
+      sortColumn
     } = this.state;
 
     //conditional total movies message
@@ -74,8 +89,11 @@ class Movies extends Component {
         ? allMovies.filter((m) => m.genre._id === selectedGenre._id)
         : allMovies;
 
-    //pagination updated so that filtered results are shown by page
-    const movies = paginate(filtered, currentPage, pageSize);
+    //sort column logic -- we have an array since we can sort by multiple columns
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+
+    //pagination updated so that sorted results are shown by page
+    const movies = paginate(sorted, currentPage, pageSize);
 
     return (
       <div className="row">
@@ -92,6 +110,7 @@ class Movies extends Component {
             movies={movies}
             onLike={this.handleLike}
             onDelete={this.handleDelete}
+            onSort={this.handleSort}
           />
           <Pagination
             itemsCount={filtered.length}
