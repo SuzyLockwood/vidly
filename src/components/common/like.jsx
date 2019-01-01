@@ -7,7 +7,7 @@ import React from 'react';
 const Like = (props) => {
   //empty to full heart when liked/clicked and hand icon when hovered over heart
   let classes = 'fa fa-heart';
-  if (props.liked) classes += '-o';
+  if (!props.liked) classes += '-o';
   return (
     <i
       onClick={props.onClick}
