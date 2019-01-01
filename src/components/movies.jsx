@@ -17,7 +17,9 @@ class Movies extends Component {
 
   //method is called when instance of this component is rendered in the DOM
   componentDidMount() {
-    this.setState({ movies: getMovies(), genres: getGenres() });
+    //added All Genres object for our filter by appending it to the existing genres array
+    const genres = [{ name: 'All Genres' }, ...getGenres()];
+    this.setState({ movies: getMovies(), genres: genres });
   }
 
   handleDelete = (movie) => {
@@ -44,8 +46,10 @@ class Movies extends Component {
     this.setState({ currentPage: page });
   };
 
+  // added 'currentPage: 1' so that the page resets to 1 when we are on another page when it gets filtered
   handleGenreSelect = (genre) => {
-    console.log(genre);
+    //gets currently selected genre
+    this.setState({ selectedGenre: genre, currentPage: 1 });
   };
 
   render() {
@@ -53,25 +57,37 @@ class Movies extends Component {
     const { length: count } = this.state.movies;
 
     //refactoring and renaming movies to allMovies since it would otherwise duplicate declaration
-    const { pageSize, currentPage, movies: allMovies } = this.state;
+    const {
+      pageSize,
+      currentPage,
+      selectedGenre,
+      movies: allMovies
+    } = this.state;
 
     //conditional total movies message
     if (count === 0) return <p>There are no movies in the database.</p>;
 
-    const movies = paginate(allMovies, currentPage, pageSize);
+    //filter genre logic -- if selected genre is truthy, then return that genre, else all movies are listed
+    //edited it to add '&& selectedGenre._id' so that our 'All Genres' filter shows all results instead of none
+    const filtered =
+      selectedGenre && selectedGenre._id
+        ? allMovies.filter((m) => m.genre._id === selectedGenre._id)
+        : allMovies;
+
+    //pagination updated so that filtered results are shown by page
+    const movies = paginate(filtered, currentPage, pageSize);
 
     return (
       <div className="row">
         <div className="col-3">
           <ListGroup
             items={this.state.genres}
-            textProperty="name"
-            valueProperty="_id"
+            selectedItem={this.state.selectedGenre}
             onItemSelect={this.handleGenreSelect}
           />
         </div>
         <div className="col">
-          <p>Showing {count} movies in the database.</p>
+          <p>Showing {filtered.length} movies in the database.</p>
           <table className="table">
             <thead>
               <tr>
@@ -109,7 +125,7 @@ class Movies extends Component {
             </tbody>
           </table>
           <Pagination
-            itemsCount={count}
+            itemsCount={filtered.length}
             pageSize={pageSize}
             currentPage={currentPage}
             onPageChange={this.handlePageChange}
