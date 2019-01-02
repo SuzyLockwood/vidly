@@ -16,6 +16,15 @@ class TableHeader extends Component {
     }
     this.props.onSort(sortColumn);
   };
+
+  //icon logic, if retrieved column is different from current sort column, then we don't render any icons, otherwise column is sorted and we want to render different icons depending on sort order
+  renderSortIcon = (column) => {
+    const { sortColumn } = this.props;
+    if (column.path !== sortColumn.path) return null;
+    if (sortColumn.order === 'asc') return <i className="fa fa-sort-asc" />;
+    return <i className="fa fa-sort-desc" />;
+  };
+
   render() {
     //returning the header of the table with ability to raise Sort event
     return (
@@ -23,10 +32,11 @@ class TableHeader extends Component {
         <tr>
           {this.props.columns.map((column) => (
             <th
+              className="clickable"
               key={column.path || column.key}
               onClick={() => this.raiseSort(column.path)}
             >
-              {column.label}
+              {column.label} {this.renderSortIcon(column)}
             </th>
           ))}
         </tr>
