@@ -1,8 +1,7 @@
 //moving the movies table into its own component (so that Movies component has same level of abstraction) and passing any objects as props as Movies component should handle the liking and delete
 import React, { Component } from 'react';
-import TableHeader from './common/tableHeader';
-import TableBody from './common/tableBody';
 import Like from './common/like';
+import Table from './common/table';
 
 class MoviesTable extends Component {
   columns = [
@@ -33,14 +32,12 @@ class MoviesTable extends Component {
     const { movies, onSort, sortColumn } = this.props;
 
     return (
-      <table className="table">
-        <TableHeader
-          columns={this.columns}
-          sortColumn={sortColumn}
-          onSort={onSort}
-        />
-        <TableBody columns={this.columns} data={movies} />
-      </table>
+      <Table
+        columns={this.columns}
+        data={movies}
+        sortColumn={sortColumn}
+        onSort={onSort}
+      />
     );
   }
 }
