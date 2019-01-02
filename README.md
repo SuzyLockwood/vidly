@@ -1,6 +1,6 @@
 # Vidly
 
-Simple React list of movies application that executes many React basics with common componnents features such as pagination, filtering, sorting, deleting, and favoriting/liking. 
+Simple React list of movies application that executes many React basics with common components features such as pagination, filtering, sorting, deleting, and favoriting/liking. 
 
 ## Features
 
