@@ -48,21 +48,14 @@ class Movies extends Component {
     this.setState({ currentPage: page });
   };
 
-  // added 'currentPage: 1' so that the page resets to 1 when we are on another page when it gets filtered
+  //added 'currentPage: 1' so that the page resets to 1 when we are on another page when it gets filtered
   handleGenreSelect = (genre) => {
     //gets currently selected genre
     this.setState({ selectedGenre: genre, currentPage: 1 });
   };
 
-  handleSort = (path) => {
-    //sort logic including clicking again to make the column descending
-    const sortColumn = { ...this.state.sortColumn };
-    if (sortColumn.path === path)
-      sortColumn.order = sortColumn.order === 'asc' ? 'desc' : 'asc';
-    else {
-      sortColumn.path = path;
-      sortColumn.order = 'asc';
-    }
+  //moved logic to tableHeader common componenent for reusability, kept state here
+  handleSort = (sortColumn) => {
     this.setState({ sortColumn });
   };
 
@@ -108,6 +101,7 @@ class Movies extends Component {
           <p>Showing {filtered.length} movies in the database.</p>
           <MoviesTable
             movies={movies}
+            sortColumn={sortColumn}
             onLike={this.handleLike}
             onDelete={this.handleDelete}
             onSort={this.handleSort}
